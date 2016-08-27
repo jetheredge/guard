@@ -69,14 +69,12 @@ module Guard
         @mutex = Mutex.new
         @thread = nil
         @terminal_settings = TerminalSettings.new
-        @interrupt_guard = false
         @exit = false
         _setup(options)
       end
 
       def foreground
         return :exit if @exit
-        return :interrupted if @interrupt_guard
         UI.debug "Start interactor"
         @terminal_settings.save
 
@@ -105,8 +103,7 @@ module Guard
         thread = @thread
         unless thread
           STDERR.puts "Guard Pry job: no thread, interrupting Guard"
-          @interrupt_guard = true
-          fail Error::Interrupted
+          return
         end
         STDERR.puts "Guard Pry job: interrupting Pry thread"
         thread.kill
